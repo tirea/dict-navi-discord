@@ -3,6 +3,8 @@
 import discord
 import asyncio
 from config import cfg as config
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
 
 trigger = config["trigger"]
 token = config["token"]
@@ -19,16 +21,21 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    # seen the trigger word. also don't allow interactive mode
-    if message.content.startswith(trigger) and message.content != trigger:
-        link = message.content
+    link = message.content
+    # seen the trigger word.
+    if link.startswith(trigger):
         print(link)
         # scrape the page for meta
-        m_title = "Test"
-        m_description = "This is a test description"
+        html = urlopen(link)
+        soup = BeautifulSoup(html.read(), "html.parser")
+
+        m_title = soup.find("title").get_text(strip=True)
+        m_description = soup.find("meta", {"name": "description"})['content']
         m_colour = 0x0fa5a6
+
         em = discord.Embed(title=m_title, description=m_description, colour=m_colour)
         em.set_author(name=message.author, icon_url=message.author.avatar_url)
+
         await client.send_message(message.channel, embed=em)
 
 client.run(token)
