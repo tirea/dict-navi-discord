@@ -34,7 +34,6 @@ async def on_message(message):
         m_colour = 0x0fa5a6
 
         em = discord.Embed(title=m_title, description=m_description, colour=m_colour)
-        em.set_author(name=message.author, icon_url=message.author.avatar_url)
 
         await client.send_message(message.channel, embed=em)
 
